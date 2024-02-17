@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BaconOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+  <style> 
+    body {
+      background-color: #211818;
+      color: #eddddd;
+      font-family: 'Quicksand', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    main, header, .mdc-card {
+      background-color: #2b2525;
+      margin: 20px;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    h1, h2, h3 {
+      color: #eddddd;
+    }
+  </style>
+</head>
+<body>
+  <header class="mdc-toolbar">
+    <div class="mdc-toolbar__row">
+      <section class="mdc-toolbar__section mdc-toolbar__section--align-start">
+        <span class="mdc-toolbar__title">BaconOS</span>
+      </section>
+    </div>
+  </header>
+
+  <main class="mdc-layout-grid">
+    <div class="mdc-layout-grid__inner">
+      <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8">
+        <section class="mdc-card">
+          <div class="mdc-card__primary">
+            <h2 class="mdc-card__title">Information</h2>
+            <div class="mdc-card__content">
+              <p>This is a website for BaconOS (currently wip).</p>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4">
+        <aside>
+          <h3>Links</h3>
+          <ul class="mdc-list" style="font-family: 'Quicksand', sans-serif;">
+            <li class="mdc-list-item">
+              <a href="https://discord.gg/R8YqGFCTYv" style="color:#ff8a8a;">Bacon's Community Discord Server</a>
+            </li>
+            <li class="mdc-list-item">
+              <a href="https://discord.gg/RpFmc4n5wY" style="color:#ff8a8a;">BaconOS Discord Server</a>
+            </li>
+            <li class="mdc-list-item">
+              <a href="https://www.roblox.com/games/14458687747/" style="color:#ff8a8a;">BaconOS (Roblox)</a>
+            </li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+  <script>
+    // this website is mostly made by ai and some of my knowledge :skull:
+    // Initialize Material Components
+    const toolbar = new mdc.toolbar.MDCToolbar(document.querySelector('.mdc-toolbar'));
+    const button = new mdc.button.MDCButton(document.querySelector('.mdc-button'));
+  </script>
+  <li class="mdc-list-item" style="padding-top: 64px;"></li>
+  <div _ngcontent-trp-c18="" class="squiggle"><svg _ngcontent-trp-c18="" aria-hidden="true" width="100%" height="8" fill="none" xmlns="http://www.w3.org/2000/svg"><pattern _ngcontent-trp-c18="" id="a" width="91" height="8" patternUnits="userSpaceOnUse"><g _ngcontent-trp-c18="" clip-path="url(#clip0_2426_11367)"><path _ngcontent-trp-c18="" d="M114 4c-5.067 4.667-10.133 4.667-15.2 0S88.667-.667 83.6 4 73.467 8.667 68.4 4 58.267-.667 53.2 4 43.067 8.667 38 4 27.867-.667 22.8 4 12.667 8.667 7.6 4-2.533-.667-7.6 4s-10.133 4.667-15.2 0S-32.933-.667-38 4s-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0-10.133-4.667-15.2 0-10.133 4.667-15.2 0" stroke="	#eebf77" stroke-linecap="square"></path></g></pattern><rect _ngcontent-trp-c18="" width="100%" height="100%" fill="url(#a)"></rect></svg></div>
+</body>
+</html>
