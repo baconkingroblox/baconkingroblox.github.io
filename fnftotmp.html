@@ -24,6 +24,18 @@
     .row {
       margin-bottom: 10px;
     }
+    
+    .preview {
+    width: 256px;
+    height: auto;
+    image-rendering: pixelated;
+    border: 1px solid #333;
+    margin-top: 8px;
+  }
+
+  .block {
+    margin-bottom: 18px;
+  }
   </style>
 </head>
 <body>
@@ -180,7 +192,13 @@ async function process() {
     const imgEl = document.createElement("img");
     imgEl.src = img;
     output.appendChild(document.createElement("br"));
-    output.appendChild(imgEl);
+    imgEl.className = "preview";
+
+    const container = document.createElement("div");
+    container.className = "block";
+
+    container.appendChild(imgEl);
+    output.appendChild(container);
 
     metadata[anim] = {
       sheet: anim + ".png",
