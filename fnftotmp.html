@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>FNF Atlas Converter</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #eee;
+      padding: 20px;
+    }
+
+    input, button {
+      margin: 8px 0;
+    }
+
+    canvas {
+      margin-top: 10px;
+      border: 1px solid #333;
+      image-rendering: pixelated;
+    }
+
+    .row {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>FNF Spritesheet Converter</h2>
+
+  <div class="row">
+    PNG: <input type="file" id="pngInput" accept="image/png" />
+  </div>
+
+  <div class="row">
+    XML: <input type="file" id="xmlInput" accept=".xml" />
+  </div>
+
+  <button onclick="process()">Convert</button>
+
+  <div id="output"></div>
+
+<script>
+let atlasImage;
+let xmlData;
+
+const FRAME_W = 512;
+const FRAME_H = 512;
+const MAX_SIZE = 2048;
+
+function parseXML(text) {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(text, "text/xml");
+
+  const subs = [...xml.getElementsByTagName("SubTexture")];
+
+  return subs.map(n => ({
+    name: n.getAttribute("name"),
+    x: parseInt(n.getAttribute("x")),
+    y: parseInt(n.getAttribute("y")),
+    w: parseInt(n.getAttribute("width")),
+    h: parseInt(n.getAttribute("height"))
+  }));
+}
+
+function cleanName(name) {
+  name = name.toLowerCase();
+
+  if (name.includes("idle")) return "idle";
+  if (name.includes("note left")) return "left";
+  if (name.includes("note right")) return "right";
+  if (name.includes("note up")) return "up";
+  if (name.includes("note down")) return "down";
+
+  return name.replace(/\d+/g, "").replace(/\s/g, "_");
+}
+
+function loadImage(file) {
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+function crop(img, f) {
+  const c = document.createElement("canvas");
+  c.width = FRAME_W;
+  c.height = FRAME_H;
+  const ctx = c.getContext("2d");
+
+  ctx.drawImage(
+    img,
+    f.x, f.y, f.w, f.h,
+    (FRAME_W - f.w) / 2,
+    FRAME_H - f.h,
+    f.w,
+    f.h
+  );
+
+  return c;
+}
+
+function buildSheet(frames, scale = 1) {
+  const fw = FRAME_W * scale;
+  const fh = FRAME_H * scale;
+
+  const cols = Math.ceil(Math.sqrt(frames.length));
+  const rows = Math.ceil(frames.length / cols);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.min(2048, cols * fw);
+  canvas.height = Math.min(2048, rows * fh);
+
+  const ctx = canvas.getContext("2d");
+
+  frames.forEach((f, i) => {
+    const img = f.canvas;
+
+    const x = (i % cols) * fw;
+    const y = Math.floor(i / cols) * fh;
+
+    ctx.drawImage(img, x, y, fw, fh);
+  });
+
+  return { canvas, rows, cols, fw, fh };
+}
+
+async function process() {
+  const pngFile = document.getElementById("pngInput").files[0];
+  const xmlFile = document.getElementById("xmlInput").files[0];
+
+  if (!pngFile || !xmlFile) return alert("missing files");
+
+  atlasImage = await loadImage(pngFile);
+  xmlData = await xmlFile.text();
+
+  const frames = parseXML(xmlData);
+
+  const grouped = {};
+
+  for (const f of frames) {
+    const name = cleanName(f.name);
+
+    if (!grouped[name]) grouped[name] = [];
+
+    const c = crop(atlasImage, f);
+
+    grouped[name].push({
+      canvas: c
+    });
+  }
+
+  const output = document.getElementById("output");
+  output.innerHTML = "";
+
+  const metadata = {};
+
+  for (const anim in grouped) {
+    const list = grouped[anim];
+
+    let scale = 1;
+    let result;
+
+    while (true) {
+      result = buildSheet(list, scale);
+
+      if (result.canvas.width <= MAX_SIZE &&
+          result.canvas.height <= MAX_SIZE) {
+        break;
+      }
+
+      scale *= 0.9;
+    }
+
+    const img = result.canvas.toDataURL();
+
+    const imgEl = document.createElement("img");
+    imgEl.src = img;
+    output.appendChild(document.createElement("br"));
+    output.appendChild(imgEl);
+
+    metadata[anim] = {
+      sheet: anim + ".png",
+      rows: result.rows,
+      cols: result.cols,
+      fps: 24,
+      crop_w: result.fw,
+      crop_h: result.fh
+    };
+
+    // download
+    const a = document.createElement("a");
+    a.href = img;
+    a.download = anim + ".png";
+    a.textContent = "download " + anim + ".png";
+    output.appendChild(document.createElement("br"));
+    output.appendChild(a);
+  }
+
+  const jsonBlob = new Blob(
+    [JSON.stringify(metadata, null, 2)],
+    { type: "application/json" }
+  );
+
+  const jsonUrl = URL.createObjectURL(jsonBlob);
+
+  const j = document.createElement("a");
+  j.href = jsonUrl;
+  j.download = "metadata.json";
+  j.textContent = "download json";
+
+  output.appendChild(document.createElement("br"));
+  output.appendChild(j);
+}
+</script>
+
+</body>
+</html>
