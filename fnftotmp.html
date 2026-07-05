@@ -114,30 +114,55 @@ function crop(img, f) {
 
   return c;
 }
+// ts cropped instead of downscaled. all gud now (hopefully)
+function buildSheet(frames) {
+    const frameCount = frames.length
 
-function buildSheet(frames, scale = 1) {
-  const fw = FRAME_W * scale;
-  const fh = FRAME_H * scale;
+    const cols = Math.ceil(Math.sqrt(frameCount))
+    const rows = Math.ceil(frameCount / cols)
 
-  const cols = Math.ceil(Math.sqrt(frames.length));
-  const rows = Math.ceil(frames.length / cols);
+    let scale = 1
 
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.min(2048, cols * fw);
-  canvas.height = Math.min(2048, rows * fh);
+    while (
+        cols * FRAME_W * scale > MAX_SIZE ||
+        rows * FRAME_H * scale > MAX_SIZE
+    ) {
+        scale *= 0.95
+    }
 
-  const ctx = canvas.getContext("2d");
+    const fw = Math.floor(FRAME_W * scale)
+    const fh = Math.floor(FRAME_H * scale)
 
-  frames.forEach((f, i) => {
-    const img = f.canvas;
+    const canvas = document.createElement("canvas")
+    canvas.width = cols * fw
+    canvas.height = rows * fh
 
-    const x = (i % cols) * fw;
-    const y = Math.floor(i / cols) * fh;
+    const ctx = canvas.getContext("2d")
 
-    ctx.drawImage(img, x, y, fw, fh);
-  });
+    frames.forEach((f, i) => {
+        const x = (i % cols) * fw
+        const y = Math.floor(i / cols) * fh
 
-  return { canvas, rows, cols, fw, fh };
+        ctx.drawImage(
+            f.canvas,
+            0,
+            0,
+            FRAME_W,
+            FRAME_H,
+            x,
+            y,
+            fw,
+            fh
+        )
+    })
+
+    return {
+        canvas,
+        rows,
+        cols,
+        fw,
+        fh
+    }
 }
 
 async function process() {
@@ -172,23 +197,9 @@ async function process() {
 
   for (const anim in grouped) {
     const list = grouped[anim];
-
-    let scale = 1;
-    let result;
-
-    while (true) {
-      result = buildSheet(list, scale);
-
-      if (result.canvas.width <= MAX_SIZE &&
-          result.canvas.height <= MAX_SIZE) {
-        break;
-      }
-
-      scale *= 0.9;
-    }
-
+    const result = buildSheet(list)
     const img = result.canvas.toDataURL();
-
+    
     const imgEl = document.createElement("img");
     imgEl.src = img;
     output.appendChild(document.createElement("br"));
