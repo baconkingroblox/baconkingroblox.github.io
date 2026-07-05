@@ -97,23 +97,27 @@ function loadImage(file) {
   });
 }
 
-function crop(img, f) {
+function crop(img, f, scale = 1) {
   const c = document.createElement("canvas");
   c.width = FRAME_W;
   c.height = FRAME_H;
   const ctx = c.getContext("2d");
 
+  const destW = f.w * scale;
+  const destH = f.h * scale;
+
   ctx.drawImage(
     img,
     f.x, f.y, f.w, f.h,
-    (FRAME_W - f.w) / 2,
-    FRAME_H - f.h,
-    f.w,
-    f.h
+    (FRAME_W - destW) / 2, 
+    FRAME_H - destH,       
+    destW,
+    destH
   );
 
   return c;
 }
+
 // ts cropped instead of downscaled. all gud now (hopefully)
 function buildSheet(frames) {
     const frameCount = frames.length
@@ -176,18 +180,29 @@ async function process() {
 
   const frames = parseXML(xmlData);
 
-  const grouped = {};
-
+  const groupedFrames = {};
   for (const f of frames) {
     const name = cleanName(f.name);
+    if (!groupedFrames[name]) groupedFrames[name] = [];
+    groupedFrames[name].push(f);
+  }
 
-    if (!grouped[name]) grouped[name] = [];
-
-    const c = crop(atlasImage, f);
-
-    grouped[name].push({
-      canvas: c
-    });
+  const grouped = {};
+  for (const anim in groupedFrames) {
+    const list = groupedFrames[anim];
+    
+    let maxW = 0;
+    let maxH = 0;
+    for (const f of list) {
+      if (f.w > maxW) maxW = f.w;
+      if (f.h > maxH) maxH = f.h;
+    }
+    
+    const groupScale = Math.min(1, FRAME_W / maxW, FRAME_H / maxH);
+    
+    grouped[anim] = list.map(f => ({
+      canvas: crop(atlasImage, f, groupScale)
+    }));
   }
 
   const output = document.getElementById("output");
